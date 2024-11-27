@@ -1,0 +1,41 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      php: 8.2 # Using AWS CodeBuild's native support for PHP 8.2
+    commands:
+      - echo Installing dependencies...
+      - sudo yum install -y httpd # Install Apache web server
+      - sudo yum install -y gcc # Ensure GCC is installed
+      - sudo yum install -y libxml2-devel # Necessary for PHP extensions
+      - sudo yum install -y php-mysqlnd # Install PHP MySQL extension
+      - sudo yum install -y php-mbstring # Install PHP Mbstring extension
+      - sudo yum install -y php-xml # Install PHP XML extension
+      - sudo yum install -y php-opcache # Install PHP Opcache (optional)
+      - echo Apache and PHP installation complete.
+
+  pre_build:
+    commands:
+      - echo Pre-build phase...
+      - php -v # Verify PHP installation
+      - apachectl -v # Verify Apache installation
+      - git --version # Verify Git installation
+
+  build:
+    commands:
+      - echo Build phase...
+      - sudo mkdir -p /var/www/html # Create the directory for the website
+      - sudo cp -R * /var/www/html # Copy the files into the web directory
+      - sudo chown -R apache:apache /var/www/html # Ensure proper file ownership
+      - echo PHP Website is ready for deployment.
+
+  post_build:
+    commands:
+      - echo Post-build phase completed.
+      - echo Files copied to /var/www/html.
+
+artifacts:
+  files:
+    - '**/*' # Include all files for potential deployment
+  discard-paths: no
